@@ -1,0 +1,1871 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistem Koperasi Karyawan</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --primary-light: #dbeafe;
+      --success: #10b981;
+      --success-light: #d1fae5;
+      --warning: #f59e0b;
+      --warning-light: #fef3c7;
+      --danger: #ef4444;
+      --danger-light: #fee2e2;
+      --info: #06b6d4;
+      --info-light: #cffafe;
+      --purple: #8b5cf6;
+      --purple-light: #ede9fe;
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --sidebar-width: 260px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+
+    /* ===== LOGIN ===== */
+    .login-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #1e3a8a, #3b82f6, #06b6d4);
+      padding: 20px;
+    }
+    .login-box {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+    }
+    .login-box .logo { text-align: center; font-size: 56px; margin-bottom: 12px; }
+    .login-box h1 { text-align: center; color: var(--primary); font-size: 24px; margin-bottom: 6px; }
+    .login-box .sub { text-align: center; color: var(--text-muted); font-size: 13px; margin-bottom: 28px; }
+    .login-error {
+      background: var(--danger-light); color: var(--danger);
+      padding: 12px 16px; border-radius: 10px;
+      margin-bottom: 16px; display: none;
+      align-items: center; gap: 10px; font-size: 14px;
+    }
+
+    /* ===== FORM ===== */
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; margin-bottom: 7px; font-weight: 500; font-size: 14px; }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%; padding: 13px 15px;
+      border: 2px solid var(--border);
+      border-radius: 10px; font-size: 14px;
+      font-family: inherit; transition: border 0.2s;
+      background: white;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none; border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+    }
+    .form-group small { display: block; margin-top: 5px; color: var(--text-muted); font-size: 12px; }
+
+    /* ===== BUTTONS ===== */
+    .btn {
+      padding: 12px 22px; border: none; border-radius: 10px;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      display: inline-flex; align-items: center;
+      justify-content: center; gap: 8px;
+      font-family: inherit; transition: all 0.2s;
+    }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover:not(:disabled) { background: var(--primary-dark); }
+    .btn-success { background: var(--success); color: white; }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-warning { background: var(--warning); color: white; }
+    .btn-outline { background: transparent; border: 2px solid var(--border); color: var(--text); }
+    .btn-sm { padding: 8px 14px; font-size: 13px; }
+    .btn-block { width: 100%; }
+
+    /* ===== LAYOUT ===== */
+    .app-container { display: none; }
+    .sidebar {
+      position: fixed; left: 0; top: 0; bottom: 0;
+      width: var(--sidebar-width);
+      background: linear-gradient(180deg, #0f172a, #1e293b);
+      color: white; z-index: 1000;
+      transition: transform 0.3s; overflow-y: auto;
+    }
+    .sidebar-header {
+      padding: 22px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      text-align: center;
+    }
+    .sidebar-header .logo-icon { font-size: 38px; margin-bottom: 6px; }
+    .sidebar-header h2 { font-size: 17px; }
+    .sidebar-header p { font-size: 12px; color: rgba(255,255,255,0.5); }
+    .sidebar-menu { padding: 14px 10px; }
+    .menu-section { margin-bottom: 20px; }
+    .menu-section-title {
+      font-size: 10px; text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      padding: 0 14px; margin-bottom: 6px; letter-spacing: 1px;
+    }
+    .menu-item {
+      display: flex; align-items: center; gap: 11px;
+      padding: 12px 14px; color: rgba(255,255,255,0.65);
+      border-radius: 10px; margin-bottom: 3px;
+      cursor: pointer; transition: all 0.2s; font-size: 14px;
+    }
+    .menu-item:hover { background: rgba(255,255,255,0.09); color: white; }
+    .menu-item.active { background: var(--primary); color: white; }
+    .menu-item i { width: 18px; text-align: center; }
+    .main-content { margin-left: var(--sidebar-width); min-height: 100vh; }
+    .header {
+      height: 64px; background: white;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 0 24px; position: sticky; top: 0; z-index: 100;
+    }
+    .header-left { display: flex; align-items: center; gap: 14px; }
+    .menu-toggle { display: none; background: none; border: none; font-size: 22px; cursor: pointer; }
+    .header-title { font-size: 18px; font-weight: 600; }
+    .header-right { display: flex; align-items: center; gap: 14px; }
+    .user-avatar {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--primary), var(--info));
+      color: white; display: flex; align-items: center;
+      justify-content: center; font-weight: 700; font-size: 15px;
+    }
+    .user-name { font-weight: 600; font-size: 13px; }
+    .user-role { font-size: 11px; color: var(--text-muted); }
+    .btn-logout {
+      background: var(--danger-light); color: var(--danger);
+      border: none; padding: 9px 14px; border-radius: 9px;
+      cursor: pointer; font-size: 13px; font-weight: 500;
+      display: flex; align-items: center; gap: 7px;
+    }
+    .btn-logout:hover { background: var(--danger); color: white; }
+    .page-content { padding: 22px; }
+
+    /* ===== CARDS ===== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 18px; margin-bottom: 22px;
+    }
+    .stat-card {
+      background: white; border-radius: 14px;
+      padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      position: relative; overflow: hidden;
+    }
+    .stat-card::before {
+      content: ''; position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+    }
+    .stat-card.blue::before { background: var(--primary); }
+    .stat-card.green::before { background: var(--success); }
+    .stat-card.yellow::before { background: var(--warning); }
+    .stat-card.red::before { background: var(--danger); }
+    .stat-card.cyan::before { background: var(--info); }
+    .stat-card.purple::before { background: var(--purple); }
+    .stat-card .icon {
+      width: 46px; height: 46px; border-radius: 11px;
+      display: flex; align-items: center;
+      justify-content: center; font-size: 20px; margin-bottom: 12px;
+    }
+    .icon.blue { background: var(--primary-light); color: var(--primary); }
+    .icon.green { background: var(--success-light); color: var(--success); }
+    .icon.yellow { background: var(--warning-light); color: var(--warning); }
+    .icon.red { background: var(--danger-light); color: var(--danger); }
+    .icon.cyan { background: var(--info-light); color: var(--info); }
+    .icon.purple { background: var(--purple-light); color: var(--purple); }
+    .stat-card .label { color: var(--text-muted); font-size: 12px; margin-bottom: 3px; }
+    .stat-card .value { font-size: 22px; font-weight: 700; }
+    .stat-card .value.sm { font-size: 16px; }
+    .info-box {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white; padding: 22px; border-radius: 14px; margin-bottom: 22px;
+    }
+    .info-box h4 { font-size: 13px; opacity: 0.85; margin-bottom: 6px; }
+    .info-box .amount { font-size: 30px; font-weight: 700; }
+    .info-box .sub { font-size: 12px; opacity: 0.75; margin-top: 6px; }
+
+    /* ===== DATA CARD ===== */
+    .data-card {
+      background: white; border-radius: 14px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      margin-bottom: 22px; overflow: hidden;
+    }
+    .data-card-header {
+      padding: 18px 22px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center;
+      justify-content: space-between; flex-wrap: wrap; gap: 12px;
+    }
+    .data-card-header h3 {
+      font-size: 15px; display: flex;
+      align-items: center; gap: 9px;
+    }
+    .data-card-header h3 i { color: var(--primary); }
+    .data-card-body { padding: 22px; }
+    .data-card-body.np { padding: 0; }
+
+    /* ===== TABLE ===== */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 13px 15px; text-align: left; border-bottom: 1px solid var(--border); font-size: 13px; }
+    th { background: #f8fafc; font-weight: 600; font-size: 11px; text-transform: uppercase; color: var(--text-muted); white-space: nowrap; }
+    tr:hover td { background: #f9fafb; }
+    tr:last-child td { border-bottom: none; }
+
+    /* ===== BADGES ===== */
+    .badge {
+      padding: 5px 11px; border-radius: 20px;
+      font-size: 11px; font-weight: 600;
+      display: inline-flex; align-items: center; gap: 5px;
+    }
+    .badge-success { background: var(--success-light); color: #059669; }
+    .badge-warning { background: var(--warning-light); color: #d97706; }
+    .badge-danger { background: var(--danger-light); color: #dc2626; }
+    .badge-info { background: var(--info-light); color: #0891b2; }
+    .badge-primary { background: var(--primary-light); color: var(--primary); }
+    .badge-secondary { background: #e2e8f0; color: #475569; }
+    .badge-purple { background: var(--purple-light); color: var(--purple); }
+
+    /* ===== PROGRESS ===== */
+    .progress-bar { height: 9px; background: #e2e8f0; border-radius: 9px; overflow: hidden; margin: 8px 0; }
+    .progress-fill { height: 100%; border-radius: 9px; background: linear-gradient(90deg, var(--success), #34d399); transition: width 0.5s; }
+    .progress-fill.warn { background: linear-gradient(90deg, var(--warning), #fbbf24); }
+    .progress-fill.danger { background: linear-gradient(90deg, var(--danger), #f87171); }
+
+    /* ===== AMOUNT COLORS ===== */
+    .ain { color: var(--success); font-weight: 600; }
+    .aout { color: var(--danger); font-weight: 600; }
+
+    /* ===== MODAL ===== */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.55);
+      display: none; align-items: center;
+      justify-content: center; z-index: 2000; padding: 16px;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: white; border-radius: 18px;
+      width: 100%; max-width: 560px; max-height: 92vh; overflow-y: auto;
+    }
+    .modal-header {
+      padding: 18px 22px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; background: white; z-index: 1;
+    }
+    .modal-header h3 { font-size: 16px; display: flex; align-items: center; gap: 9px; }
+    .modal-close {
+      background: var(--bg); border: none;
+      width: 34px; height: 34px; border-radius: 9px;
+      font-size: 18px; cursor: pointer; display: flex;
+      align-items: center; justify-content: center;
+    }
+    .modal-body { padding: 22px; }
+    .modal-footer {
+      padding: 18px 22px; border-top: 1px solid var(--border);
+      display: flex; gap: 10px; justify-content: flex-end;
+      position: sticky; bottom: 0; background: white;
+    }
+
+    /* ===== ALERT ===== */
+    .alert {
+      padding: 14px 18px; border-radius: 11px;
+      margin-bottom: 16px; display: flex;
+      align-items: flex-start; gap: 11px; font-size: 13px;
+    }
+    .alert i { font-size: 18px; margin-top: 2px; flex-shrink: 0; }
+    .alert-info { background: var(--info-light); color: #0e7490; }
+    .alert-warning { background: var(--warning-light); color: #92400e; }
+    .alert-danger { background: var(--danger-light); color: #991b1b; }
+    .alert-success { background: var(--success-light); color: #065f46; }
+
+    /* ===== ACTION BUTTONS ===== */
+    .action-btns { display: flex; gap: 7px; }
+    .btn-ic {
+      width: 34px; height: 34px; border-radius: 9px;
+      border: none; cursor: pointer; display: flex;
+      align-items: center; justify-content: center;
+      font-size: 13px; transition: all 0.2s;
+    }
+    .btn-ic:hover { transform: scale(1.1); }
+    .ic-approve { background: var(--success-light); color: var(--success); }
+    .ic-reject { background: var(--danger-light); color: var(--danger); }
+    .ic-view { background: var(--primary-light); color: var(--primary); }
+    .ic-process { background: var(--warning-light); color: var(--warning); }
+    .ic-wa { background: #dcfce7; color: #16a34a; }
+
+    /* ===== LOADING ===== */
+    .loading { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; color: var(--text-muted); }
+    .spinner { width: 44px; height: 44px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 14px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .empty-state { text-align: center; padding: 50px 20px; color: var(--text-muted); }
+    .empty-state i { font-size: 52px; opacity: 0.25; margin-bottom: 12px; display: block; }
+
+    /* ===== TOAST ===== */
+    .toast-container { position: fixed; top: 20px; right: 20px; z-index: 3000; display: flex; flex-direction: column; gap: 10px; }
+    .toast {
+      color: white; padding: 14px 20px; border-radius: 11px;
+      display: flex; align-items: center; gap: 10px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.18);
+      animation: toastIn 0.3s ease; max-width: 340px; font-size: 14px;
+    }
+    @keyframes toastIn { from { transform: translateX(110%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    .toast.success { background: var(--success); }
+    .toast.error { background: var(--danger); }
+    .toast.warning { background: var(--warning); }
+    .toast.info { background: var(--info); }
+
+    /* ===== APPROVAL TIMELINE ===== */
+    .apv-line { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 12px; }
+    .apv-step {
+      flex: 1; min-width: 75px; text-align: center;
+      padding: 9px 6px; border-radius: 8px;
+      background: var(--bg); border: 1px solid var(--border); font-size: 11px;
+    }
+    .apv-step.done { background: var(--success-light); border-color: var(--success); }
+    .apv-step.cur { background: var(--warning-light); border-color: var(--warning); }
+    .apv-step.rej { background: var(--danger-light); border-color: var(--danger); }
+    .apv-step i { display: block; font-size: 15px; margin-bottom: 4px; }
+    .apv-step .ts { font-size: 9px; color: var(--text-muted); margin-top: 3px; }
+
+    /* ===== LOAN SUMMARY ===== */
+    .loan-summary {
+      border-radius: 10px; padding: 14px; margin: 14px 0;
+    }
+    .loan-summary-row {
+      display: flex; justify-content: space-between;
+      padding: 7px 0; font-size: 13px;
+      border-bottom: 1px dashed rgba(0,0,0,0.1);
+    }
+    .loan-summary-row:last-child { border-bottom: none; font-weight: 700; font-size: 15px; padding-top: 10px; }
+
+    /* ===== SIDEBAR OVERLAY ===== */
+    .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 999; }
+    .sidebar-overlay.show { display: block; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main-content { margin-left: 0; }
+      .menu-toggle { display: block; }
+      .user-details { display: none; }
+      .page-content { padding: 14px; }
+      .stats-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+      .btn-logout span { display: none; }
+      .apv-line { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== LOGIN PAGE ===== -->
+<div id="loginPage" class="login-page">
+  <div class="login-box">
+    <div class="logo">🏦</div>
+    <h1>Koperasi Karyawan</h1>
+    <p class="sub">Sistem Manajemen Koperasi Terintegrasi</p>
+    <div id="loginError" class="login-error">
+      <i class="fas fa-exclamation-circle"></i>
+      <span id="loginErrorText"></span>
+    </div>
+    <form id="loginForm">
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="username" placeholder="Masukkan username" required>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="password" placeholder="Masukkan password" required>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" id="btnLogin">
+        <i class="fas fa-sign-in-alt"></i>
+        <span id="loginBtnText">Masuk ke Sistem</span>
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- ===== APP ===== -->
+<div id="appContainer" class="app-container">
+  <div id="sidebarOverlay" class="sidebar-overlay"></div>
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-icon">🏦</div>
+      <h2>Koperasi</h2>
+      <p>Sistem Manajemen</p>
+    </div>
+    <nav class="sidebar-menu" id="sidebarMenu"></nav>
+  </aside>
+  <main class="main-content">
+    <header class="header">
+      <div class="header-left">
+        <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+        <h1 class="header-title" id="pageTitle">Dashboard</h1>
+      </div>
+      <div class="header-right">
+        <div style="text-align:right">
+          <div class="user-name" id="hUserName">-</div>
+          <div class="user-role" id="hUserRole">-</div>
+        </div>
+        <div class="user-avatar" id="hAvatar">-</div>
+        <button class="btn-logout" onclick="doLogout()">
+          <i class="fas fa-sign-out-alt"></i><span>Keluar</span>
+        </button>
+      </div>
+    </header>
+    <div class="page-content" id="pageContent"></div>
+  </main>
+</div>
+
+<!-- ===== MODAL ===== -->
+<div id="modal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">-</h3>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer" id="modalFooter">
+      <button class="btn btn-outline" onclick="closeModal()">Batal</button>
+      <button class="btn btn-primary" id="btnConfirm" onclick="runConfirm()">
+        <i class="fas fa-save"></i> Simpan
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TOAST ===== -->
+<div class="toast-container" id="toastBox"></div>
+
+<script>
+// =====================================================
+// CONFIG - GANTI URL DI BAWAH INI
+// =====================================================
+const API = 'https://script.google.com/macros/s/AKfycbyskL-JvJ8jcrafbHoN0ZlUnoS5JzhfG79cSCX1T-TVN2keWTZBf0sUnQJTRqsNrVP_5w/exec';
+
+// =====================================================
+// SETTINGS
+// =====================================================
+const S = {
+  kasbon_pct: 35,
+  pinjaman_pct: 75,
+  admin_fee_pct: 3,
+  cooldown_days: 30,
+  app_url: 'https://github.com/adiwsaja/Koperasi', // ← GANTI URL KAMU
+  wa: {
+    hc_manager: '6281234567891', // ← GANTI NOMOR HC MANAGER
+    finance:    '6281234567892'  // ← GANTI NOMOR FINANCE
+  },
+  company: 'PT. TEKNO BUANA GLOBALINDO', // ← GANTI NAMA PERUSAHAAN
+  city: 'Bandung'                 // ← GANTI KOTA
+};
+
+const TENOR_CFG = {
+  1:  { type:'KASBON',   pct:35, color:'warning' },
+  3:  { type:'PINJAMAN', pct:75, color:'primary' },
+  6:  { type:'PINJAMAN', pct:75, color:'primary' },
+  12: { type:'PINJAMAN', pct:75, color:'primary' }
+};
+
+const TX = {
+  simpanan_wajib:   { label:'Simpanan Wajib',  icon:'fa-coins',          color:'success', eff:'+' },
+  simpanan_sukarela:{ label:'Tabungan',         icon:'fa-piggy-bank',     color:'info',    eff:'+' },
+  penarikan_simpanan:{ label:'Penarikan',       icon:'fa-arrow-down',     color:'danger',  eff:'-' },
+  pencairan_pinjaman:{ label:'Pencairan',       icon:'fa-money-bill-wave',color:'warning', eff:'+' },
+  cicilan:          { label:'Cicilan',          icon:'fa-credit-card',    color:'primary', eff:'-' },
+  kontribusi:       { label:'Kontribusi',       icon:'fa-gift',           color:'purple',  eff:'-' }
+};
+
+const PS = {
+  PENDING:         { label:'Menunggu Dept Mgr', badge:'badge-warning',   icon:'fa-clock',       stage:0 },
+  PENDING_HC:      { label:'Menunggu HC Mgr',   badge:'badge-info',      icon:'fa-user-tie',    stage:1 },
+  PENDING_FINANCE: { label:'Menunggu Finance',  badge:'badge-primary',   icon:'fa-calculator',  stage:2 },
+  APPROVED:        { label:'Disetujui',          badge:'badge-success',   icon:'fa-check',       stage:3 },
+  REJECTED:        { label:'Ditolak',            badge:'badge-danger',    icon:'fa-times',       stage:-1},
+  CAIR:            { label:'Dicairkan',           badge:'badge-success',   icon:'fa-money-bill',  stage:4 },
+  AKTIF:           { label:'Aktif',              badge:'badge-primary',   icon:'fa-sync',        stage:4 },
+  LUNAS:           { label:'Lunas',              badge:'badge-secondary', icon:'fa-check-double',stage:5 }
+};
+
+const APV_STAGES = [
+  { key:'pengaju',      label:'Pengaju',      field:null,                     tf:null },
+  { key:'dept_manager', label:'Dept Manager', field:'approval_dept_manager',  tf:'approval_dept_time' },
+  { key:'hc_manager',   label:'HC Manager',   field:'approval_hc_manager',    tf:'approval_hc_time' },
+  { key:'finance',      label:'Finance',      field:'approval_finance',        tf:'approval_finance_time' }
+];
+
+const MENUS = {
+  admin:[
+    { sec:'UTAMA', items:[
+      ['dashboard','Dashboard','fa-home'],
+      ['anggota','Data Anggota','fa-users']
+    ]},
+    { sec:'TRANSAKSI', items:[
+      ['simpanan','Simpanan','fa-piggy-bank'],
+      ['pinjaman','Pinjaman','fa-hand-holding-usd'],
+      ['angsuran','Angsuran','fa-money-check-alt'],
+      ['kontribusi','Kontribusi','fa-gift']
+    ]},
+    { sec:'KEUANGAN', items:[
+      ['payroll','Payroll','fa-file-invoice-dollar'],
+      ['transaksi','Semua Transaksi','fa-exchange-alt']
+    ]}
+  ],
+  user:[
+    { sec:'MENU SAYA', items:[
+      ['dashboard','Dashboard','fa-home'],
+      ['simpanan','Simpanan Saya','fa-piggy-bank'],
+      ['pinjaman','Pinjaman Saya','fa-hand-holding-usd'],
+      ['transaksi','Riwayat Transaksi','fa-exchange-alt'],
+      ['payroll','Slip Gaji','fa-file-invoice-dollar']
+    ]}
+  ]
+};
+
+// =====================================================
+// STATE
+// =====================================================
+let CU   = null;  // currentUser
+let ROLE = null;
+let PAGE = 'dashboard';
+let CACHE = {};
+let CONFIRM_FN = null;
+
+// =====================================================
+// UTILS
+// =====================================================
+const fRp = n => 'Rp ' + (Number(n)||0).toLocaleString('id-ID');
+const fDate = d => { if(!d) return '-'; return new Date(d).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}); };
+const fTs   = d => { if(!d) return '-'; return new Date(d).toLocaleString('id-ID',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}); };
+const fInit = n => { if(!n) return '?'; return n.split(' ').map(x=>x[0]).join('').toUpperCase().slice(0,2); };
+
+function toast(msg, type='success') {
+  const box = document.getElementById('toastBox');
+  const icons = {success:'check-circle',error:'times-circle',warning:'exclamation-circle',info:'info-circle'};
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<i class="fas fa-${icons[type]||'info-circle'}"></i><span>${msg}</span>`;
+  box.appendChild(el);
+  setTimeout(()=>{ el.style.opacity='0'; el.style.transition='opacity 0.3s'; setTimeout(()=>el.remove(),300); }, 3000);
+}
+
+function loader(show) {
+  let el = document.getElementById('gLoader');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'gLoader';
+    el.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:9999;';
+    el.innerHTML = '<div class="spinner" style="border:4px solid #fff3;border-top-color:#fff;width:44px;height:44px;border-radius:50%;animation:spin 0.8s linear infinite"></div>';
+    document.body.appendChild(el);
+  }
+  el.style.display = show ? 'flex' : 'none';
+}
+
+// =====================================================
+// API
+// =====================================================
+async function apiGET(action, params={}) {
+  try {
+    const p = new URLSearchParams({ action });
+    Object.keys(params).forEach(k => {
+      if (params[k] !== undefined && params[k] !== null) p.append(k, params[k]);
+    });
+    const r = await fetch(API + '?' + p.toString());
+    return await r.json();
+  } catch(e) {
+    console.error('GET error:', e);
+    return { success:false, error:e.message };
+  }
+}
+
+async function apiPOST(action, data={}) {
+  try {
+    loader(true);
+    const r = await fetch(API, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain'},
+      body: JSON.stringify({ action, ...data })
+    });
+    const result = await r.json();
+    loader(false);
+    if (!result.success) toast(result.error || 'Gagal', 'error');
+    CACHE = {};
+    return result;
+  } catch(e) {
+    loader(false);
+    console.error('POST error:', e);
+    toast('Koneksi gagal: ' + e.message, 'error');
+    return { success:false, error:e.message };
+  }
+}
+
+async function getData(sheet) {
+  if (!sheet) { console.error('getData: sheet undefined'); return []; }
+  if (CACHE[sheet]) return CACHE[sheet];
+  const r = await apiGET('getSheet', { sheet });
+  if (Array.isArray(r)) { CACHE[sheet] = r; return r; }
+  if (r.error) { console.error(r.error); return []; }
+  CACHE[sheet] = r;
+  return r;
+}
+
+// =====================================================
+// CALCULATIONS
+// =====================================================
+function calcSaldo(uid, trx) {
+  return trx.filter(t=>String(t.user_id)===String(uid))
+    .reduce((s,t)=>{
+      const j = Number(t.jumlah)||0;
+      if (t.jenis==='simpanan_wajib'||t.jenis==='simpanan_sukarela') return s+j;
+      if (t.jenis==='penarikan_simpanan') return s-j;
+      return s;
+    },0);
+}
+
+function calcSisa(pid, trx) {
+  let pinjaman=0, cicilan=0;
+  trx.forEach(t=>{
+    if (String(t.ref_id)===String(pid)) {
+      const j=Number(t.jumlah)||0;
+      if (t.jenis==='pencairan_pinjaman') pinjaman=j;
+      else if (t.jenis==='cicilan') cicilan+=j;
+    }
+  });
+  return pinjaman - cicilan;
+}
+
+function calcCicilanCount(pid, trx) {
+  return trx.filter(t=>t.jenis==='cicilan'&&String(t.ref_id)===String(pid)).length;
+}
+
+function calcMaxPinjaman(tenor, gaji) {
+  const cfg = TENOR_CFG[tenor] || { pct:75 };
+  return Math.floor(Number(gaji) * cfg.pct / 100);
+}
+
+function calcAdminFee(jml)  { return Math.floor(Number(jml) * S.admin_fee_pct / 100); }
+function calcNet(jml)       { return Number(jml) - calcAdminFee(jml); }
+function calcCicilan(jml,t) { return Math.ceil(Number(jml)/Number(t)); }
+
+function canBorrow(uid, pinjaman) {
+  const hasActive = pinjaman.some(p=>
+    String(p.user_id)===String(uid) &&
+    ['PENDING','PENDING_HC','PENDING_FINANCE','APPROVED','CAIR','AKTIF'].includes(p.status)
+  );
+  if (hasActive) return { can:false, reason:'Masih ada pinjaman/pengajuan aktif' };
+  const lunas = pinjaman
+    .filter(p=>String(p.user_id)===String(uid)&&p.status==='LUNAS'&&p.tanggal_lunas)
+    .sort((a,b)=>new Date(b.tanggal_lunas)-new Date(a.tanggal_lunas));
+  if (lunas.length>0) {
+    const days = Math.floor((Date.now()-new Date(lunas[0].tanggal_lunas))/86400000);
+    if (days < S.cooldown_days) return { can:false, reason:`Cooldown ${S.cooldown_days-days} hari lagi` };
+  }
+  return { can:true, reason:'' };
+}
+
+// =====================================================
+// WHATSAPP
+// =====================================================
+function sendWA(role, p, user, customPhone = null) {
+  let phone = customPhone;
+
+  if (!phone) {
+    if (role === 'dept_manager') {
+      // Ambil dari no_hp_atasan milik user yang mengajukan
+      phone = user?.no_hp_atasan || user?.no_hp_manager || null;
+    } else {
+      // HC Manager & Finance dari settings
+      phone = S.wa[role] || null;
+    }
+  }
+
+  if (!phone) {
+    toast(`Nomor WA ${role} tidak ditemukan di data user`, 'warning');
+    return;
+  }
+
+  // Bersihkan format nomor HP
+  phone = String(phone).replace(/\D/g, '');
+  if (phone.startsWith('0')) phone = '62' + phone.slice(1);
+
+  const base   = S.app_url || window.location.href.split('?')[0];
+  const okUrl  = `${base}?act=approve&pid=${p.id}&role=${role}`;
+  const noUrl  = `${base}?act=reject&pid=${p.id}&role=${role}`;
+
+  const msg =
+`📋 *PENGAJUAN ${p.jenis} KOPERASI*
+━━━━━━━━━━━━━━━━━
+👤 *Pemohon:*
+Nama: ${user.nama}
+Jabatan: ${user.jabatan || '-'}
+Dept: ${user.departemen || '-'}
+HP: ${user.no_hp || '-'}
+
+💰 *Detail:*
+Jenis: ${p.jenis}
+Jumlah: ${fRp(p.jumlah)}
+Admin Fee: ${fRp(p.admin_fee)}
+Diterima: ${fRp(p.net_amount)}
+Tenor: ${p.tenor} Bulan
+Cicilan: ${fRp(p.cicilan_per_bulan)}/bln
+Keperluan: ${p.keterangan || '-'}
+
+━━━━━━━━━━━━━━━━━
+✅ SETUJU: ${okUrl}
+❌ TOLAK: ${noUrl}`;
+
+  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+// =====================================================
+// AUTH
+// =====================================================
+document.getElementById('loginForm').addEventListener('submit', async function(e){
+  e.preventDefault();
+  const uname = document.getElementById('username').value;
+  const pass  = document.getElementById('password').value;
+  const btn   = document.getElementById('btnLogin');
+  const txt   = document.getElementById('loginBtnText');
+  btn.disabled = true;
+  txt.textContent = 'Memproses...';
+  document.getElementById('loginError').style.display = 'none';
+
+  const r = await apiGET('login',{ username:uname, password:pass });
+
+  if (r.success && r.user) {
+    CU   = r.user;
+    ROLE = r.user.role || 'user';
+    localStorage.setItem('_ks', JSON.stringify(r.user));
+    showApp();
+    toast(`Selamat datang, ${r.user.nama}!`);
+    // cek pending approval
+    const pending = localStorage.getItem('_pendingApv');
+    if (pending) {
+      localStorage.removeItem('_pendingApv');
+      const {act,pid,role} = JSON.parse(pending);
+      window.location.href = `${window.location.pathname}?act=${act}&pid=${pid}&role=${role}`;
+    }
+  } else {
+    document.getElementById('loginError').style.display = 'flex';
+    document.getElementById('loginErrorText').textContent = r.error || 'Login gagal';
+  }
+  btn.disabled = false;
+  txt.textContent = 'Masuk ke Sistem';
+});
+
+function doLogout() {
+  if (!confirm('Yakin keluar?')) return;
+  CU = null; ROLE = null; CACHE = {};
+  localStorage.removeItem('_ks');
+  document.getElementById('loginPage').style.display = 'flex';
+  document.getElementById('appContainer').style.display = 'none';
+  document.getElementById('username').value = '';
+  document.getElementById('password').value = '';
+}
+
+function checkSession() {
+  const s = localStorage.getItem('_ks');
+  if (s) { CU = JSON.parse(s); ROLE = CU.role||'user'; showApp(); }
+}
+
+// =====================================================
+// APP
+// =====================================================
+function showApp() {
+  document.getElementById('loginPage').style.display = 'none';
+  document.getElementById('appContainer').style.display = 'block';
+  document.getElementById('hUserName').textContent = CU.nama;
+  document.getElementById('hUserRole').textContent = ROLE==='admin'?'Administrator':'Anggota';
+  document.getElementById('hAvatar').textContent   = fInit(CU.nama);
+  renderMenu();
+  goTo('dashboard');
+  checkURLAction();
+}
+
+function renderMenu() {
+  const cfg = MENUS[ROLE]||MENUS.user;
+  document.getElementById('sidebarMenu').innerHTML = cfg.map(s=>`
+    <div class="menu-section">
+      <div class="menu-section-title">${s.sec}</div>
+      ${s.items.map(([k,lbl,ic])=>`
+        <div class="menu-item ${PAGE===k?'active':''}" onclick="goTo('${k}')">
+          <i class="fas ${ic}"></i><span>${lbl}</span>
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+}
+
+function goTo(page) {
+  PAGE = page;
+  renderMenu();
+  const cfg = MENUS[ROLE]||MENUS.user;
+  let title='Dashboard';
+  cfg.forEach(s=>{ const it=s.items.find(i=>i[0]===page); if(it) title=it[1]; });
+  document.getElementById('pageTitle').textContent = title;
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('show');
+  renderPage(page);
+}
+
+async function renderPage(page) {
+  document.getElementById('pageContent').innerHTML =
+    '<div class="loading"><div class="spinner"></div><span>Memuat...</span></div>';
+  try {
+    if (ROLE==='admin') {
+      switch(page) {
+        case 'dashboard':  await pgAdminDash();   break;
+        case 'anggota':    await pgAnggota();      break;
+        case 'simpanan':   await pgSimpananAdm();  break;
+        case 'pinjaman':   await pgPinjamanAdm();  break;
+        case 'angsuran':   await pgAngsuranAdm();  break;
+        case 'kontribusi': await pgKontribusi();   break;
+        case 'payroll':    await pgPayrollAdm();   break;
+        case 'transaksi':  await pgTrxAdm();       break;
+        default: document.getElementById('pageContent').innerHTML='<div class="empty-state"><i class="fas fa-tools"></i><p>Halaman dalam pengembangan</p></div>';
+      }
+    } else {
+      switch(page) {
+        case 'dashboard': await pgUserDash();  break;
+        case 'simpanan':  await pgSimpananUsr();break;
+        case 'pinjaman':  await pgPinjamanUsr();break;
+        case 'transaksi': await pgTrxUsr();    break;
+        case 'payroll':   await pgPayrollUsr(); break;
+        default: document.getElementById('pageContent').innerHTML='<div class="empty-state"><i class="fas fa-tools"></i><p>Halaman dalam pengembangan</p></div>';
+      }
+    }
+  } catch(err) {
+    document.getElementById('pageContent').innerHTML=`<div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i><div>Error: ${err.message}</div></div>`;
+  }
+}
+
+// =====================================================
+// MODAL ENGINE  ← INI KUNCI AGAR SIMPAN JALAN
+// =====================================================
+function showModal(title, body, confirmFn, hideFooter=false) {
+  document.getElementById('modalTitle').innerHTML = title;
+  document.getElementById('modalBody').innerHTML  = body;
+  document.getElementById('modalFooter').style.display = hideFooter ? 'none' : 'flex';
+  document.getElementById('modal').classList.add('show');
+  CONFIRM_FN = confirmFn || null;
+  const btn = document.getElementById('btnConfirm');
+  btn.style.display = confirmFn ? 'inline-flex' : 'none';
+}
+
+// Tombol Simpan di modal SELALU memanggil runConfirm()
+function runConfirm() {
+  if (typeof CONFIRM_FN === 'function') {
+    CONFIRM_FN();
+  }
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('show');
+  CONFIRM_FN = null;
+}
+
+// =====================================================
+// APPROVAL TIMELINE RENDER
+// =====================================================
+function renderApvTimeline(p) {
+  const curStage = PS[p.status]?.stage ?? 0;
+  const isRej    = p.status === 'REJECTED';
+  return `<div class="apv-line">
+    ${APV_STAGES.map((st,i)=>{
+      let cls='', icon='fa-circle';
+      if (i===0) { cls='done'; icon='fa-check'; }
+      else if (isRej && i>0 && i<=Math.max(curStage,1)) { cls='rej'; icon='fa-times'; }
+      else if (i<=curStage) { cls='done'; icon='fa-check'; }
+      else if (i===curStage+1) { cls='cur'; icon='fa-clock'; }
+      const ts = st.tf && p[st.tf] ? `<div class="ts">${fTs(p[st.tf])}</div>` : '';
+      return `<div class="apv-step ${cls}"><i class="fas ${icon}"></i><div>${st.label}</div>${ts}</div>`;
+    }).join('')}
+  </div>`;
+}
+
+// =====================================================
+// ADMIN PAGES
+// =====================================================
+async function pgAdminDash() {
+  const [users,trx,pjm] = await Promise.all([getData('users'),getData('transaksi'),getData('pinjaman')]);
+  const members = users.filter(u=>u.role!=='admin');
+  let totS=0,totP=0;
+  trx.forEach(t=>{ const j=Number(t.jumlah)||0; if(['simpanan_wajib','simpanan_sukarela'].includes(t.jenis)) totS+=j; else if(t.jenis==='penarikan_simpanan') totP+=j; });
+  const aktif   = pjm.filter(p=>['CAIR','AKTIF'].includes(p.status));
+  const totSisa = aktif.reduce((s,p)=>s+calcSisa(p.id,trx),0);
+  const pending = pjm.filter(p=>['PENDING','PENDING_HC','PENDING_FINANCE'].includes(p.status));
+
+  document.getElementById('pageContent').innerHTML = `
+    <div class="stats-grid">
+      <div class="stat-card blue"><div class="icon blue"><i class="fas fa-users"></i></div><div class="label">Total Anggota</div><div class="value">${members.length}</div></div>
+      <div class="stat-card green"><div class="icon green"><i class="fas fa-piggy-bank"></i></div><div class="label">Saldo Simpanan</div><div class="value sm">${fRp(totS-totP)}</div></div>
+      <div class="stat-card yellow"><div class="icon yellow"><i class="fas fa-hand-holding-usd"></i></div><div class="label">Pinjaman Aktif</div><div class="value sm">${fRp(totSisa)}</div></div>
+      <div class="stat-card red"><div class="icon red"><i class="fas fa-clock"></i></div><div class="label">Pending Approval</div><div class="value">${pending.length}</div></div>
+    </div>
+    ${pending.length>0?`
+    <div class="data-card">
+      <div class="data-card-header"><h3><i class="fas fa-bell"></i> Pengajuan Menunggu Approval</h3></div>
+      <div class="data-card-body np"><div class="table-wrap"><table>
+        <thead><tr><th>Tanggal</th><th>Anggota</th><th>Jenis</th><th>Jumlah</th><th>Status</th><th>Aksi</th></tr></thead>
+        <tbody>
+          ${pending.map(p=>{
+            const u=users.find(x=>x.id==p.user_id);
+            const st=PS[p.status]||{};
+            return `<tr>
+              <td>${fDate(p.tanggal_pengajuan)}</td>
+              <td><strong>${u?.nama||'-'}</strong><br><small>${u?.departemen||''}</small></td>
+              <td><span class="badge badge-${TENOR_CFG[p.tenor]?.color||'secondary'}">${p.jenis}</span></td>
+              <td><strong>${fRp(p.jumlah)}</strong><br><small>Net: ${fRp(p.net_amount)}</small></td>
+              <td><span class="badge ${st.badge}">${st.label}</span></td>
+              <td><div class="action-btns">
+                <button class="btn-ic ic-view" onclick="showDetailPinjaman(${p.id})" title="Detail"><i class="fas fa-eye"></i></button>
+                <button class="btn-ic ic-approve" onclick="doApproveStage(${p.id})" title="Approve"><i class="fas fa-check"></i></button>
+                <button class="btn-ic ic-reject" onclick="doReject(${p.id})" title="Tolak"><i class="fas fa-times"></i></button>
+                <button class="btn-ic ic-wa" onclick="doSendWA(${p.id})" title="Kirim WA"><i class="fab fa-whatsapp"></i></button>
+              </div></td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table></div></div>
+    </div>`:``}
+    <div class="data-card">
+      <div class="data-card-header"><h3><i class="fas fa-exchange-alt"></i> Transaksi Terbaru</h3></div>
+      <div class="data-card-body np"><div class="table-wrap"><table>
+        <thead><tr><th>Tanggal</th><th>Anggota</th><th>Jenis</th><th>Jumlah</th></tr></thead>
+        <tbody>
+          ${trx.slice(-10).reverse().map(t=>{
+            const u=users.find(x=>x.id==t.user_id);
+            const tp=TX[t.jenis]||{label:t.jenis,color:'secondary',eff:''};
+            return `<tr><td>${fDate(t.tanggal)}</td><td>${u?.nama||'-'}</td>
+              <td><span class="badge badge-${tp.color}">${tp.label}</span></td>
+              <td class="${tp.eff==='+'?'ain':'aout'}">${tp.eff}${fRp(t.jumlah)}</td></tr>`;
+          }).join('')||'<tr><td colspan="4">Belum ada transaksi</td></tr>'}
+        </tbody>
+      </table></div></div>
+    </div>
+  `;
+}
+
+async function pgAnggota() {
+  const [users,trx,pjm] = await Promise.all([getData('users'),getData('transaksi'),getData('pinjaman')]);
+  const members = users.filter(u=>u.role!=='admin');
+  document.getElementById('pageContent').innerHTML = `
+    <div class="data-card">
+      <div class="data-card-header"><h3><i class="fas fa-users"></i> Data Anggota</h3></div>
+      <div class="data-card-body np"><div class="table-wrap"><table>
+        <thead><tr><th>Anggota</th><th>Jabatan/Dept</th><th>Gaji</th><th>Simpanan</th><th>Sisa Pinjaman</th></tr></thead>
+        <tbody>
+          ${members.map(m=>{
+            const saldo=calcSaldo(m.id,trx);
+            const sisa=pjm.filter(p=>p.user_id==m.id&&['CAIR','AKTIF'].includes(p.status)).reduce((s,p)=>s+calcSisa(p.id,trx),0);
+            return `<tr>
+              <td><div style="display:flex;align-items:center;gap:10px">
+                <div class="user-avatar" style="width:34px;height:34px;font-size:11px">${fInit(m.nama)}</div>
+                <div><strong>${m.nama}</strong></div>
+              </div></td>
+              <td>${m.jabatan||'-'}<br><small>${m.departemen||'-'}</small></td>
+              <td>${fRp(m.gaji_pokok)}</td>
+              <td class="ain">${fRp(saldo)}</td>
+              <td class="${sisa>0?'aout':''}">${fRp(sisa)}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table></div></div>
+    </div>
+  `;
+}
+
+async function pgSimpananAdm() {
+  const [users,trx] = await Promise.all([getData('users'),getData('transaksi')]);
+  const rows = trx.filter(t=>['simpanan_wajib','simpanan_sukarela','penarikan_simpanan'].includes(t.jenis));
+  document.getElementById('pageContent').innerHTML = `
+    <div class="data-card">
+      <div class="data-card-header">
+        <h3><i class="fas fa-piggy-bank"></i> Transaksi Simpanan</h3>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-success btn-sm" onclick="modalSimpanan()"><i class="fas fa-plus"></i> Input Simpanan</button>
+          <button class="btn btn-danger btn-sm" onclick="modalPenarikan()"><i class="fas fa-minus"></i> Penarikan</button>
+        </div>
+      </div>
+      <div class="data-card-body np"><div class="table-wrap"><table>
+        <thead><tr><th>Tanggal</th><th>Anggota</th><th>Jenis</th><th>Jumlah</th><th>Keterangan</th></tr></thead>
+        <tbody>
+          ${rows.slice(-30).reverse().map(t=>{
+            const u=users.find(x=>x.id==t.user_id);
+            const tp=TX[t.jenis]||{};
+            return `<tr><td>${fDate(t.tanggal)}</td><td>${u?.nama||'-'}</td>
+              <td><span class="badge badge-${tp.color}">${tp.label}</span></td>
+              <td class="${tp.eff==='+'?'ain':'aout'}">${tp.eff}${fRp(t.jumlah)}</td>
+              <td>${t.keterangan||'-'}</td></tr>`;
+          }).join('')||'<tr><td colspan="5">Belum ada data</td></tr>'}
+        </tbody>
+      </table></div></div>
+    </div>
+  `;
+}
+
+async function pgPinjamanAdm() {
+  const [users,trx,pjm] = await Promise.all([getData('users'),getData('transaksi'),getData('pinjaman')]);
+  document.getElementById('pageContent').innerHTML = `
+    <div class="data-card">
+      <div class="data-card-header"><h3><i class="fas fa-hand-holding-usd"></i> Data Pinjaman</h3></div>
+      <div class="data-card-body np"><div class="table-wrap"><table>
+        <thead><tr><th>Tanggal</th><th>Anggota</th><th>Jenis</th><th>Jumlah</th><th>Net</th><th>Tenor</th><th>Sisa</th><th>Status</th><th>Aksi</th></tr></thead>
+        <tbody>
+          ${pjm.map(p=>{
+            const u=users.find(x=>x.id==p.user_id);
+            const sisa=calcSisa(p.id,trx);
+            const st=PS[p.status]||{};
+            return `<tr>
+              <td>${fDate(p.tanggal_pengajuan)}</td>
+              <td>${u?.nama||'-'}</td>
+              <td><span class="badge badge-${TENOR_CFG[p.tenor]?.color||'secondary'}">${p.jenis}</span></td>
+              <td><strong>${fRp(p.jumlah)}</strong></td>
+              <td>${fRp(p.net_amount)}</td>
+              <td>${p.tenor} bln</td>
+              <td class="${sisa>0?'aout':''}">${fRp(sisa>0?sisa:0)}</td>
+              <td><span class="badge ${st.badge}">${st.label}</span></td>
+              <td><div class="action-btns">
+                <button class="btn-ic ic-view" onclick="showDetailPinjaman(${p.id})"><i class="fas fa-eye"></i></button>
+                ${['PENDING','PENDING_HC','PENDING_FINANCE'].includes(p.status)?`
+                  <button class="btn-ic ic-approve" onclick="doApproveStage(${p.id})"><i class="fas fa-check"></i></button>
+                  <button class="btn-ic ic-reject" onclick="doReject(${p.id})"><i class="fas fa-times"></i></button>
+                `:''}
+                ${p.status==='APPROVED'?`<button class="btn-ic ic-process" onclick="doCairkan(${p.id})"><i class="fas fa-money-bill-wave"></i></button>`:''}
+              </div></td>
+            </tr>`;
+          }).join('')||'<tr><td colspan="9">Belum ada data</td></tr>'}
+        </tbody>
+      </table></div></div>
+    </div>
+  `;
+}
+
+async function pgAngsuranAdm() {
+  const [users,trx,pjm] = await Promise.all([getData('users'),getData('transaksi'),getData('pinjaman')]);
+  const aktif = pjm.filter(p=>['CAIR','AKTIF'].includes(p.status));
+  const curMonth = new Date().toISOString().slice(0,7);
+  document.getElementById('pageContent').innerHTML = `
+    <div class="data-card">
+      <div class="data-card-header">
+        <h3><i class="fas fa-money-check-alt"></i> Pinjaman Aktif</h3>
+        <button class="btn btn-primary" onclick="doBatchCicilan()"><i class="fas fa-play"></i> Proses Cicilan Bulan Ini</button>
+      </div>
+      <div class="data-card-body np"><div class="table-wrap"><table>
+        <thead><tr><th>Anggota</th><th>Jenis</th><th>Jumlah</th><th>Cicilan/Bln</th><th>Terbayar</th><th>Sisa</th><th>Progress</th><th>Aksi</th></tr></thead>
+        <tbody>
+          ${aktif.map(p=>{
+            const u=users.find(x=>x.id==p.user_id);
+            const sisa=calcSisa(p.id,trx);
+            const bayar=Number(p.jumlah)-sisa;
+            const cnt=calcCicilanCount(p.id,trx);
+            const pct=Math.min((bayar/Number(p.jumlah||1)*100),100).toFixed(0);
+            const sudah=trx.some(t=>t.jenis==='cicilan'&&String(t.ref_id)===String(p.id)&&t.tanggal?.startsWith(curMonth));
+            return `<tr>
+              <td>${u?.nama||'-'}</td>
+              <td><span class="badge badge-${TENOR_CFG[p.tenor]?.color||'secondary'}">${p.jenis}</span></td>
+              <td>${fRp(p.jumlah)}</td>
+              <td>${fRp(p.cicilan_per_bulan)}</td>
+              <td class="ain">${fRp(bayar)} (${cnt}x)</td>
+              <td class="aout">${fRp(sisa)}</td>
+              <td style="min-width:100px"><div class="progress-bar"><div class="progress-fill ${pct>66?'':pct>33?'warn':'danger'}" style="width:${pct}%"></div></div><small>${pct}%</small></td>
+              <td>${sudah?`<span class="badge badge-success"><i class="fas fa-check"></i> Sudah</span>`:`<button class="btn btn-sm btn-primary" onclick="doSingleCicilan(${p.id},${p.cicilan_per_bulan})"><i class="fas fa-credit-card"></i> Bayar</button>`}</td>
+            </tr>`;
+          }).join('')||'<tr><td colspan="8">Tidak ada pinjaman aktif</td></tr>'}
+        </tbody>
+      </table></div></div>
+    </div>
+  `;
+}
+
+async function pgKontribusi() {
+  const [users,trx] = await Promise.all([getData('users'),getData('transaksi')]);
+  const rows = trx.filter(t=>t.jenis==='kontribusi');
+  document.getElementById('pageContent').innerHTML = `
+    <div class="data-card">
+      <div class="data-card-header">
+        <h3><i class="fas fa-gift"></i> Data Kontribusi</h3>
+        <button class="btn btn-primary btn-sm" onclick="modalKontribusi()"><i class="fas fa-plus"></i> Input</button>
+      </div>
+      <div class="data-card-body np"><div class="table-wrap"><table>
+        <thead><tr><th>Tanggal</th><th>Anggota</th><th>Jumlah</th><th>Keterangan</th></tr></thead>
+        <tbody>
+          ${rows.slice(-20).reverse().map(t=>{
+            const u=users.find(x=>x.id==t.user_id);
+            return `<tr><td>${fDate(t.tanggal)}</td><td>${u?.nama||'-'}</td><td>${fRp(t.jumlah)}</td><td>${t.keterangan||'-'}</td></tr>`;
+          }).join('')||'<tr><td colspan="4">Belum ada data</td></tr>'}
+        </tbody>
+      </table></div></div>
+    </div>
+  `;
+}
+
+async function pgPayrollAdm() {
+  const [users,pjm] = await Promise.all([getData('users'),getData('pinjaman')]);
+  const members = users.filter(u=>u.role!=='admin');
+  document.getElementById('pageContent').innerHTML = `
+    <div class="data-card">
+      <div class="data-card-header"><h3><i class="fas fa-file-invoice-dollar"></i> Simulasi Payroll</h3></div>
+      <div class="data-card-body np"><div class="table-wrap"><table>
+        <thead><tr><th>Anggota</th><th>Gaji Pokok</th><th>Pot. Simpanan</th><th>Pot. Cicilan</th><th>Gaji Bersih</th></tr></thead>
+        <tbody>
+          ${members.map(m=>{
+            const gaji=Number(m.gaji_pokok||0);
+            const potS=100000;
+            const aktif=pjm.find(p=>p.user_id==m.id&&['CAIR','AKTIF'].includes(p.status));
+            const potC=aktif?Number(aktif.cicilan_per_bulan||0):0;
+            const bersih=gaji-potS-potC;
+            return `<tr>
+              <td>${m.nama}</td>
+              <td>${fRp(gaji)}</td>
+              <td class="aout">-${fRp(potS)}</td>
+              <td class="aout">${potC>0?'-'+fRp(potC):'-'}</td>
+              <td><strong style="color:var(--success)">${fRp(bersih)}</strong></td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table></div></div>
+    </div>
+  `;
+}
+
+async function pgTrxAdm() {
+  const [users,trx] = await Promise.all([getData('users'),getData('transaksi')]);
+  document.getElementById('pageContent').innerHTML = `
+    <div class="data-card">
+      <div class="data-card-header"><h3><i class="fas fa-exchange-alt"></i> Semua Transaksi</h3></div>
+      <div class="data-card-body np"><div class="table-wrap"><table>
+        <thead><tr><th>ID</th><th>Tanggal</th><th>Anggota</th><th>Jenis</th><th>Jumlah</th><th>Keterangan</th></tr></thead>
+        <tbody>
+          ${trx.slice().reverse().map(t=>{
+            const u=users.find(x=>x.id==t.user_id);
+            const tp=TX[t.jenis]||{label:t.jenis,color:'secondary',eff:''};
+            return `<tr>
+              <td>#${t.id}</td>
+              <td>${fDate(t.tanggal)}</td>
+              <td>${u?.nama||'-'}</td>
+              <td><span class="badge badge-${tp.color}">${tp.label}</span></td>
+              <td class="${tp.eff==='+'?'ain':'aout'}">${tp.eff}${fRp(t.jumlah)}</td>
+              <td>${t.keterangan||'-'}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table></div></div>
+    </div>
+  `;
+}
+
+// =====================================================
+// USER PAGES
+// =====================================================
+async function pgUserDash() {
+  const [trx,pjm] = await Promise.all([getData('transaksi'),getData('pinjaman')]);
+  const saldo   = calcSaldo(CU.id,trx);
+  const simW    = trx.filter(t=>String(t.user_id)===String(CU.id)&&t.jenis==='simpanan_wajib').reduce((s,t)=>s+Number(t.jumlah||0),0);
+  const simS    = trx.filter(t=>String(t.user_id)===String(CU.id)&&t.jenis==='simpanan_sukarela').reduce((s,t)=>s+Number(t.jumlah||0),0);
+  const totK    = trx.filter(t=>String(t.user_id)===String(CU.id)&&t.jenis==='kontribusi').reduce((s,t)=>s+Number(t.jumlah||0),0);
+  const myPjm   = pjm.filter(p=>String(p.user_id)===String(CU.id));
+  const aktif   = myPjm.find(p=>['CAIR','AKTIF'].includes(p.status));
+  const sisa    = aktif ? calcSisa(aktif.id,trx) : 0;
+  const gaji    = Number(CU.gaji_pokok||0);
+  const maxK    = calcMaxPinjaman(1,gaji);
+  const maxP    = calcMaxPinjaman(3,gaji);
+  const bs      = canBorrow(CU.id,pjm);
+  const myTrx   = trx.filter(t=>String(t.user_id)===String(CU.id)).slice(-5).reverse();
+  const pending = myPjm.filter(p=>['PENDING','PENDING_HC','PENDING_FINANCE','APPROVED'].includes(p.status));
+
+  document.getElementById('pageContent').innerHTML = `
+    <div class="info-box">
+      <h4>Total Saldo Simpanan</h4>
+      <div class="amount">${fRp(saldo)}</div>
+      <div class="sub">Gaji Pokok: ${fRp(gaji)}</div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card green"><div class="icon green"><i class="fas fa-coins"></i></div><div class="label">Simpanan Wajib</div><div class="value sm">${fRp(simW)}</div></div>
+      <div class="stat-card cyan"><div class="icon cyan"><i class="fas fa-piggy-bank"></i></div><div class="label">Tabungan</div><div class="value sm">${fRp(simS)}</div></div>
+      <div class="stat-card purple"><div class="icon purple"><i class="fas fa-gift"></i></div><div class="label">Kontribusi</div><div class="value sm">${fRp(totK)}</div></div>
+      <div class="stat-card yellow"><div class="icon yellow"><i class="fas fa-hand-holding-usd"></i></div><div class="label">Sisa Pinjaman</div><div class="value sm">${fRp(sisa)}</div></div>
+    </div>
+
+    <div class="data-card">
+      <div class="data-card-body">
+        <h4 style="margin-bottom:14px"><i class="fas fa-calculator" style="color:var(--primary)"></i> Batas Pinjaman</h4>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+          <div style="padding:14px;background:var(--warning-light);border-radius:10px;text-align:center">
+            <div style="font-size:11px;color:var(--warning);font-weight:700">KASBON (1 Bulan)</div>
+            <div style="font-size:18px;font-weight:700">${fRp(maxK)}</div>
+            <div style="font-size:11px;color:var(--text-muted)">35% dari gaji</div>
+          </div>
+          <div style="padding:14px;background:var(--primary-light);border-radius:10px;text-align:center">
+            <div style="font-size:11px;color:var(--primary);font-weight:700">PINJAMAN (3-12 Bln)</div>
+            <div style="font-size:18px;font-weight:700">${fRp(maxP)}</div>
+            <div style="font-size:11px;color:var(--text-muted)">75% dari gaji</div>
+          </div>
+        </div>
+        ${bs.can
+          ? `<button class="btn btn-primary btn-block" onclick="modalAjukanPinjaman()"><i class="fas fa-plus"></i> Ajukan Pinjaman / Kasbon</button>`
+          : `<div class="alert alert-warning" style="margin:0"><i class="fas fa-info-circle"></i><span>${bs.reason}</span></div>`
+        }
+      </div>
+    </div>
+
+    ${aktif?`
+    <div class="data-card">
+      <div class="data-card-header"><h3><i class="fas fa-${aktif.jenis==='KASBON'?'bolt':'hand-holding-usd'}"></i> ${aktif.jenis} Aktif</h3><span class="badge badge-primary">AKTIF</span></div>
+      <div class="data-card-body">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px">
+          <div><div style="font-size:11px;color:var(--text-muted)">Jumlah</div><div style="font-weight:700">${fRp(aktif.jumlah)}</div></div>
+          <div><div style="font-size:11px;color:var(--text-muted)">Cicilan</div><div style="font-weight:700">${fRp(aktif.cicilan_per_bulan)}</div></div>
+          <div><div style="font-size:11px;color:var(--text-muted)">Terbayar</div><div style="font-weight:700;color:var(--success)">${fRp(Number(aktif.jumlah)-sisa)}</div></div>
+          <div><div style="font-size:11px;color:var(--text-muted)">Sisa</div><div style="font-weight:700;color:var(--danger)">${fRp(sisa)}</div></div>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${Math.min(((Number(aktif.jumlah)-sisa)/Number(aktif.jumlah||1)*100),100).toFixed(0)}%"></div></div>
+        <small>${calcCicilanCount(aktif.id,trx)}/${aktif.tenor} cicilan</small>
+      </div>
+    </div>`:``}
+
+    ${pending.length>0?`
+    <div class="data-card">
+      <div class="data-card-header"><h3><i class="fas fa-clock"></i> Pengajuan Dalam Proses</h3></div>
+      <div class="data-card-body">
+        ${pending.map(p=>{
+          const st=PS[p.status]||{};
+          const tc=TENOR_CFG[p.tenor]||{};
+          return `<div style="padding:16px;border:2px solid var(--border);border-radius:12px;margin-bottom:12px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+              <span class="badge badge-${tc.color||'secondary'}">${p.jenis}</span>
+              <span class="badge ${st.badge}">${st.label}</span>
+            </div>
+            <div style="font-size:20px;font-weight:700">${fRp(p.jumlah)}</div>
+            <div style="font-size:12px;color:var(--text-muted)">Net: ${fRp(p.net_amount)} | Tenor: ${p.tenor} bln | Cicilan: ${fRp(p.cicilan_per_bulan)}/bln</div>
+            ${renderApvTimeline(p)}
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`:``}
+
+    <div class="data-card">
+      <div class="data-card-header"><h3><i class="fas fa-history"></i> Transaksi Terbaru</h3><button class="btn btn-outline btn-sm" onclick="goTo('transaksi')">Lihat Semua</button></div>
+      <div class="data-card-body np"><div class="table-wrap"><table>
+        <thead><tr><th>Tanggal</th><th>Jenis</th><th>Jumlah</th></tr></thead>
+        <tbody>
+          ${myTrx.map(t=>{ const tp=TX[t.jenis]||{label:t.jenis,color:'secondary',eff:''}; return `<tr><td>${fDate(t.tanggal)}</td><td><span class="badge badge-${tp.color}">${tp.label}</span></td><td class="${tp.eff==='+'?'ain':'aout'}">${tp.eff}${fRp(t.jumlah)}</td></tr>`; }).join('')||'<tr><td colspan="3">Belum ada transaksi</td></tr>'}
+        </tbody>
+      </table></div></div>
+    </div>
+  `;
+}
+
+async function pgSimpananUsr() {
+  const trx   = await getData('transaksi');
+  const my    = trx.filter(t=>String(t.user_id)===String(CU.id)&&['simpanan_wajib','simpanan_sukarela','penarikan_simpanan'].includes(t.jenis));
+  const saldo = calcSaldo(CU.id,trx);
+  document.getElementById('pageContent').innerHTML = `
+    <div class="info-box"><h4>Total Saldo Simpanan</h4><div class="amount">${fRp(saldo)}</div></div>
+    <div class="data-card">
+      <div class="data-card-header"><h3><i class="fas fa-list"></i> Riwayat Simpanan</h3></div>
+      <div class="data-card-body np"><div class="table-wrap"><table>
+        <thead><tr><th>Tanggal</th><th>Jenis</th><th>Jumlah</th><th>Keterangan</th></tr></thead>
+        <tbody>
+          ${my.slice().reverse().map(t=>{ const tp=TX[t.jenis]||{}; return `<tr><td>${fDate(t.tanggal)}</td><td><span class="badge badge-${tp.color}">${tp.label}</span></td><td class="${tp.eff==='+'?'ain':'aout'}">${tp.eff}${fRp(t.jumlah)}</td><td>${t.keterangan||'-'}</td></tr>`; }).join('')||'<tr><td colspan="4">Belum ada data</td></tr>'}
+        </tbody>
+      </table></div></div>
+    </div>
+  `;
+}
+
+async function pgPinjamanUsr() {
+  const [trx,pjm] = await Promise.all([getData('transaksi'),getData('pinjaman')]);
+  const my  = pjm.filter(p=>String(p.user_id)===String(CU.id));
+  const gaji= Number(CU.gaji_pokok||0);
+  const bs  = canBorrow(CU.id,pjm);
+  document.getElementById('pageContent').innerHTML = `
+    <div class="stats-grid" style="grid-template-columns:1fr 1fr">
+      <div class="stat-card yellow"><div class="icon yellow"><i class="fas fa-bolt"></i></div><div class="label">Max Kasbon (1 bln)</div><div class="value sm">${fRp(calcMaxPinjaman(1,gaji))}</div></div>
+      <div class="stat-card blue"><div class="icon blue"><i class="fas fa-hand-holding-usd"></i></div><div class="label">Max Pinjaman</div><div class="value sm">${fRp(calcMaxPinjaman(3,gaji))}</div></div>
+    </div>
+    ${bs.can?`<button class="btn btn-primary btn-block" style="margin-bottom:20px" onclick="modalAjukanPinjaman()"><i class="fas fa-plus"></i> Ajukan Pinjaman / Kasbon</button>`:`<div class="alert alert-warning"><i class="fas fa-info-circle"></i><span>${bs.reason}</span></div>`}
+    <div class="data-card">
+      <div class="data-card-header"><h3><i class="fas fa-hand-holding-usd"></i> Riwayat Pinjaman</h3></div>
+      <div class="data-card-body">
+        ${my.length===0?'<div class="empty-state"><i class="fas fa-folder-open"></i><p>Belum ada pinjaman</p></div>':''}
+        ${my.map(p=>{
+          const sisa=calcSisa(p.id,trx);
+          const bayar=(['CAIR','AKTIF','LUNAS'].includes(p.status))?(Number(p.jumlah)-sisa):0;
+          const pct=Math.min((bayar/Number(p.jumlah||1)*100),100).toFixed(0);
+          const st=PS[p.status]||{};
+          const tc=TENOR_CFG[p.tenor]||{};
+          return `<div style="padding:18px;border:2px solid var(--border);border-radius:12px;margin-bottom:14px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+              <span class="badge badge-${tc.color||'secondary'}">${p.jenis}</span>
+              <span class="badge ${st.badge}">${st.label}</span>
+            </div>
+            <div style="font-size:22px;font-weight:700;margin-bottom:6px">${fRp(p.jumlah)}</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px">Admin Fee: ${fRp(p.admin_fee)} | Diterima: ${fRp(p.net_amount)} | Tenor: ${p.tenor} bln | Cicilan: ${fRp(p.cicilan_per_bulan)}/bln</div>
+            ${['PENDING','PENDING_HC','PENDING_FINANCE','APPROVED'].includes(p.status)?renderApvTimeline(p):''}
+            ${['CAIR','AKTIF','LUNAS'].includes(p.status)?`
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Terbayar: ${fRp(bayar)}</span><span>Sisa: ${fRp(sisa>0?sisa:0)}</span></div>
+              <div class="progress-bar"><div class="progress-fill ${pct>66?'':pct>33?'warn':'danger'}" style="width:${pct}%"></div></div>
+              <small>${calcCicilanCount(p.id,trx)}/${p.tenor} cicilan</small>
+            `:''}
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  `;
+}
+
+async function pgTrxUsr() {
+  const trx = await getData('transaksi');
+  const my  = trx.filter(t=>String(t.user_id)===String(CU.id));
+  document.getElementById('pageContent').innerHTML = `
+    <div class="data-card">
+      <div class="data-card-header"><h3><i class="fas fa-exchange-alt"></i> Riwayat Transaksi</h3></div>
+      <div class="data-card-body np"><div class="table-wrap"><table>
+        <thead><tr><th>Tanggal</th><th>Jenis</th><th>Jumlah</th><th>Keterangan</th></tr></thead>
+        <tbody>
+          ${my.slice().reverse().map(t=>{ const tp=TX[t.jenis]||{label:t.jenis,color:'secondary',eff:''}; return `<tr><td>${fDate(t.tanggal)}</td><td><span class="badge badge-${tp.color}">${tp.label}</span></td><td class="${tp.eff==='+'?'ain':'aout'}">${tp.eff}${fRp(t.jumlah)}</td><td>${t.keterangan||'-'}</td></tr>`; }).join('')||'<tr><td colspan="4">Belum ada data</td></tr>'}
+        </tbody>
+      </table></div></div>
+    </div>
+  `;
+}
+
+async function pgPayrollUsr() {
+  const pjm   = await getData('pinjaman');
+  const gaji  = Number(CU.gaji_pokok||0);
+  const potS  = 100000;
+  const aktif = pjm.find(p=>String(p.user_id)===String(CU.id)&&['CAIR','AKTIF'].includes(p.status));
+  const potC  = aktif?Number(aktif.cicilan_per_bulan||0):0;
+  const bersih= gaji-potS-potC;
+  document.getElementById('pageContent').innerHTML = `
+    <div style="max-width:480px;margin:0 auto">
+      <div class="data-card">
+        <div style="background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;padding:22px;text-align:center;border-radius:14px 14px 0 0">
+          <h2 style="margin-bottom:5px"><i class="fas fa-file-invoice-dollar"></i> Slip Gaji</h2>
+          <p style="opacity:0.85;font-size:13px">${new Date().toLocaleDateString('id-ID',{month:'long',year:'numeric'})}</p>
+        </div>
+        <div class="data-card-body">
+          <div style="padding-bottom:14px;border-bottom:2px solid var(--border);margin-bottom:14px">
+            <div style="font-weight:700;font-size:17px">${CU.nama}</div>
+            <div style="color:var(--text-muted);font-size:13px">${CU.jabatan||'-'} | ${CU.departemen||'-'}</div>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:10px 0;font-size:14px"><span>Gaji Pokok</span><strong>${fRp(gaji)}</strong></div>
+          <div style="display:flex;justify-content:space-between;padding:10px 0;font-size:14px;color:var(--danger)"><span>Pot. Simpanan Wajib</span><span>- ${fRp(potS)}</span></div>
+          ${potC>0?`<div style="display:flex;justify-content:space-between;padding:10px 0;font-size:14px;color:var(--danger)"><span>Pot. Cicilan ${aktif.jenis}</span><span>- ${fRp(potC)}</span></div>`:''}
+          <div style="display:flex;justify-content:space-between;padding:18px;background:var(--success-light);border-radius:10px;margin-top:14px;font-size:17px;font-weight:700">
+            <span>GAJI BERSIH</span><span style="color:var(--success)">${fRp(bersih)}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// =====================================================
+// MODAL: SIMPANAN
+// =====================================================
+async function modalSimpanan() {
+  const users = await getData('users');
+  const members = users.filter(u=>u.role!=='admin');
+  showModal('<i class="fas fa-piggy-bank"></i> Input Simpanan', `
+    <div class="form-group">
+      <label>Anggota <span style="color:red">*</span></label>
+      <select id="f_simUser"><option value="">Pilih anggota...</option>${members.map(m=>`<option value="${m.id}">${m.nama}</option>`).join('')}</select>
+    </div>
+    <div class="form-group">
+      <label>Jenis <span style="color:red">*</span></label>
+      <select id="f_simJenis">
+        <option value="simpanan_wajib">Simpanan Wajib</option>
+        <option value="simpanan_sukarela">Tabungan / Sukarela</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Jumlah <span style="color:red">*</span></label>
+      <input type="number" id="f_simJml" placeholder="0" min="1">
+    </div>
+    <div class="form-group">
+      <label>Keterangan</label>
+      <input type="text" id="f_simKet" placeholder="Opsional">
+    </div>
+  `, async function() {
+    const uid  = document.getElementById('f_simUser').value;
+    const jns  = document.getElementById('f_simJenis').value;
+    const jml  = document.getElementById('f_simJml').value;
+    const ket  = document.getElementById('f_simKet').value;
+    if (!uid)  return toast('Pilih anggota!','error');
+    if (!jml)  return toast('Masukkan jumlah!','error');
+    const act  = jns==='simpanan_wajib'?'addSimpananWajib':'addSimpananSukarela';
+    const r = await apiPOST(act,{ user_id:uid, jumlah:Number(jml), keterangan:ket });
+    if (r.success) { toast('Simpanan berhasil dicatat!','success'); closeModal(); renderPage(PAGE); }
+  });
+}
+
+// =====================================================
+// MODAL: PENARIKAN
+// =====================================================
+async function modalPenarikan() {
+  const [users,trx] = await Promise.all([getData('users'),getData('transaksi')]);
+  const members = users.filter(u=>u.role!=='admin');
+  showModal('<i class="fas fa-arrow-down"></i> Penarikan Simpanan', `
+    <div class="alert alert-warning"><i class="fas fa-exclamation-triangle"></i><div>Pastikan saldo mencukupi!</div></div>
+    <div class="form-group">
+      <label>Anggota <span style="color:red">*</span></label>
+      <select id="f_wdUser"><option value="">Pilih anggota...</option>${members.map(m=>`<option value="${m.id}">${m.nama} — Saldo: ${fRp(calcSaldo(m.id,trx))}</option>`).join('')}</select>
+    </div>
+    <div class="form-group">
+      <label>Jumlah <span style="color:red">*</span></label>
+      <input type="number" id="f_wdJml" placeholder="0" min="1">
+    </div>
+    <div class="form-group">
+      <label>Keterangan</label>
+      <input type="text" id="f_wdKet" placeholder="Opsional">
+    </div>
+  `, async function() {
+    const uid = document.getElementById('f_wdUser').value;
+    const jml = document.getElementById('f_wdJml').value;
+    const ket = document.getElementById('f_wdKet').value;
+    if (!uid) return toast('Pilih anggota!','error');
+    if (!jml) return toast('Masukkan jumlah!','error');
+    const r = await apiPOST('addPenarikan',{ user_id:uid, jumlah:Number(jml), keterangan:ket });
+    if (r.success) { toast('Penarikan berhasil!','success'); closeModal(); renderPage(PAGE); }
+  });
+}
+
+// =====================================================
+// MODAL: KONTRIBUSI
+// =====================================================
+async function modalKontribusi() {
+  const users = await getData('users');
+  const members = users.filter(u=>u.role!=='admin');
+  showModal('<i class="fas fa-gift"></i> Input Kontribusi', `
+    <div class="form-group">
+      <label>Anggota <span style="color:red">*</span></label>
+      <select id="f_ktUser"><option value="">Pilih anggota...</option>${members.map(m=>`<option value="${m.id}">${m.nama}</option>`).join('')}</select>
+    </div>
+    <div class="form-group">
+      <label>Jumlah <span style="color:red">*</span></label>
+      <input type="number" id="f_ktJml" placeholder="0" min="1">
+    </div>
+    <div class="form-group">
+      <label>Keterangan</label>
+      <input type="text" id="f_ktKet" placeholder="Contoh: Kontribusi HUT perusahaan">
+    </div>
+  `, async function() {
+    const uid = document.getElementById('f_ktUser').value;
+    const jml = document.getElementById('f_ktJml').value;
+    const ket = document.getElementById('f_ktKet').value;
+    if (!uid) return toast('Pilih anggota!','error');
+    if (!jml) return toast('Masukkan jumlah!','error');
+    const r = await apiPOST('addKontribusi',{ user_id:uid, jumlah:Number(jml), keterangan:ket });
+    if (r.success) { toast('Kontribusi berhasil!','success'); closeModal(); renderPage(PAGE); }
+  });
+}
+
+// =====================================================
+// MODAL: AJUKAN PINJAMAN (User) ← FORM PROFESIONAL
+// =====================================================
+function modalAjukanPinjaman() {
+  const gaji  = Number(CU.gaji_pokok||0);
+  const maxK  = calcMaxPinjaman(1,gaji);
+  const maxP  = calcMaxPinjaman(3,gaji);
+  const today = new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+
+  showModal('<i class="fas fa-file-alt"></i> Pengajuan Pinjaman / Kasbon', `
+    <!-- HEADER SURAT -->
+    <div style="text-align:center;padding:16px;background:#f8fafc;border-radius:10px;margin-bottom:18px">
+      <h3 style="color:var(--primary);margin:0;font-size:16px">FORMULIR PENGAJUAN PINJAMAN</h3>
+      <p style="color:var(--text-muted);font-size:12px;margin:4px 0 0">KOPERASI KARYAWAN ${S.company}</p>
+    </div>
+
+    <!-- DATA PEMOHON (read-only) -->
+    <div style="background:#f0fdf4;padding:14px;border-radius:10px;margin-bottom:16px">
+      <div style="font-size:12px;font-weight:700;color:#166534;margin-bottom:10px"><i class="fas fa-user"></i> Data Pemohon</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px">
+        <div><div style="color:#888;font-size:11px">Nama Lengkap</div><strong>${CU.nama}</strong></div>
+        <div><div style="color:#888;font-size:11px">Jabatan</div><strong>${CU.jabatan||'-'}</strong></div>
+        <div><div style="color:#888;font-size:11px">Departemen</div><strong>${CU.departemen||'-'}</strong></div>
+        <div><div style="color:#888;font-size:11px">Gaji Pokok</div><strong>${fRp(gaji)}</strong></div>
+      </div>
+    </div>
+
+    <!-- FORM PENGAJUAN -->
+    <div class="form-group">
+      <label>Jenis & Tenor Pembayaran <span style="color:red">*</span></label>
+      <select id="f_lnTenor" onchange="onTenorChange()">
+        <option value="">-- Pilih Jenis Pinjaman --</option>
+        <option value="1">📌 KASBON — 1 Bulan (Max ${fRp(maxK)})</option>
+        <option value="3">💳 PINJAMAN — 3 Bulan Cicilan (Max ${fRp(maxP)})</option>
+        <option value="6">💳 PINJAMAN — 6 Bulan Cicilan (Max ${fRp(maxP)})</option>
+        <option value="12">💳 PINJAMAN — 12 Bulan Cicilan (Max ${fRp(maxP)})</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Jumlah Pengajuan <span style="color:red">*</span></label>
+      <input type="number" id="f_lnJml" placeholder="Masukkan jumlah" min="1" oninput="onJumlahChange()">
+      <small id="f_lnInfo" style="color:var(--text-muted)">Pilih tenor terlebih dahulu</small>
+    </div>
+
+    <div class="form-group">
+      <label>Keperluan / Alasan <span style="color:red">*</span></label>
+      <textarea id="f_lnKet" rows="3" placeholder="Jelaskan keperluan pinjaman Anda..."></textarea>
+    </div>
+
+    <!-- RINGKASAN KALKULASI -->
+    <div id="f_lnSummary" style="display:none"></div>
+
+    <!-- DISCLAIMER -->
+    <div style="padding:12px;background:#fef2f2;border-radius:8px;margin-top:14px;display:flex;gap:10px;align-items:flex-start">
+      <input type="checkbox" id="f_lnAgree" style="margin-top:3px;flex-shrink:0">
+      <label for="f_lnAgree" style="font-size:12px;color:#991b1b;margin:0;cursor:pointer">
+        Saya menyatakan data yang diisi adalah benar dan bersedia dipotong gaji untuk pembayaran pinjaman/kasbon sesuai ketentuan yang berlaku.
+      </label>
+    </div>
+
+    <!-- TTD AREA -->
+    <div style="margin-top:18px;padding-top:14px;border-top:2px dashed var(--border);display:flex;justify-content:space-between;align-items:flex-end;font-size:12px">
+      <div style="text-align:center">
+        <p style="margin:0 0 32px;color:var(--text-muted)">Diajukan Oleh,</p>
+        <p style="margin:0;font-weight:700;border-top:1px solid #333;padding-top:4px">${CU.nama}</p>
+        <p style="margin:0;color:var(--text-muted)">${CU.jabatan||'Karyawan'}</p>
+      </div>
+      <div style="text-align:right;color:var(--text-muted)">${S.city}, ${today}</div>
+    </div>
+  `, doSubmitPinjaman);
+}
+
+// update saat tenor berubah
+function onTenorChange() {
+  const tenor  = document.getElementById('f_lnTenor')?.value;
+  const info   = document.getElementById('f_lnInfo');
+  const jmlEl  = document.getElementById('f_lnJml');
+  const gaji   = Number(CU.gaji_pokok||0);
+  if (!tenor) { if(info) info.textContent='Pilih tenor terlebih dahulu'; return; }
+  const cfg  = TENOR_CFG[tenor]||{pct:75,type:'PINJAMAN',color:'primary'};
+  const maxA = calcMaxPinjaman(tenor, gaji);
+  if (jmlEl) jmlEl.max = maxA;
+  if (info) info.innerHTML = `<span style="color:var(--${cfg.color})"><strong>${cfg.type}</strong> — Maks: ${fRp(maxA)} (${cfg.pct}% gaji)</span>`;
+  onJumlahChange();
+}
+
+// update saat jumlah berubah
+function onJumlahChange() {
+  const tenor   = document.getElementById('f_lnTenor')?.value;
+  const jumlah  = Number(document.getElementById('f_lnJml')?.value)||0;
+  const summDiv = document.getElementById('f_lnSummary');
+  if (!summDiv) return;
+  if (!tenor||!jumlah) { summDiv.style.display='none'; return; }
+
+  const cfg    = TENOR_CFG[tenor]||{pct:75,type:'PINJAMAN',color:'primary'};
+  const maxA   = calcMaxPinjaman(tenor, Number(CU.gaji_pokok||0));
+  summDiv.style.display='block';
+
+  if (jumlah > maxA) {
+    summDiv.style.background='#fee2e2';
+    summDiv.style.borderRadius='10px';
+    summDiv.style.padding='12px';
+    summDiv.innerHTML=`<span style="color:var(--danger);font-weight:600"><i class="fas fa-exclamation-triangle"></i> Melebihi batas maksimal ${fRp(maxA)}</span>`;
+    return;
+  }
+
+  const fee     = calcAdminFee(jumlah);
+  const net     = calcNet(jumlah);
+  const cicilan = calcCicilan(jumlah, tenor);
+
+  summDiv.style.background = cfg.type==='KASBON'?'#fef3c7':'#dbeafe';
+  summDiv.style.borderRadius='10px';
+  summDiv.style.padding='14px';
+  summDiv.innerHTML=`
+    <div style="font-weight:700;font-size:13px;margin-bottom:10px"><i class="fas fa-calculator"></i> Ringkasan</div>
+    <div class="loan-summary">
+      <div class="loan-summary-row"><span>Jenis</span><strong>${cfg.type}</strong></div>
+      <div class="loan-summary-row"><span>Jumlah Pengajuan</span><strong>${fRp(jumlah)}</strong></div>
+      <div class="loan-summary-row" style="color:var(--danger)"><span>Biaya Admin (${S.admin_fee_pct}%)</span><strong>- ${fRp(fee)}</strong></div>
+      <div class="loan-summary-row" style="color:var(--success)"><span>💰 Yang Diterima</span><strong>${fRp(net)}</strong></div>
+      <div class="loan-summary-row"><span>Tenor</span><strong>${tenor} Bulan</strong></div>
+      <div class="loan-summary-row"><span>${cfg.type==='KASBON'?'Pelunasan':'Cicilan/Bulan'}</span><strong>${fRp(cicilan)}</strong></div>
+    </div>
+  `;
+}
+
+// SUBMIT PINJAMAN ← function yg dipanggil tombol Simpan
+async function doSubmitPinjaman() {
+  const tenor  = document.getElementById('f_lnTenor')?.value;
+  const jumlah = document.getElementById('f_lnJml')?.value;
+  const ket    = document.getElementById('f_lnKet')?.value;
+  const agree  = document.getElementById('f_lnAgree')?.checked;
+
+  // ===== VALIDASI =====
+  if (!tenor)  return toast('Pilih jenis pinjaman!', 'error');
+  if (!jumlah) return toast('Masukkan jumlah!', 'error');
+  if (!ket)    return toast('Isi keperluan!', 'error');
+  if (!agree)  return toast('Centang persetujuan terlebih dahulu!', 'error');
+
+  const gaji = Number(CU.gaji_pokok || 0);
+  const maxA = calcMaxPinjaman(tenor, gaji);
+
+  if (Number(jumlah) > maxA) {
+    return toast(`Melebihi batas maksimal ${fRp(maxA)}!`, 'error');
+  }
+
+  // ===== SUBMIT KE GAS =====
+  const r = await apiPOST('ajukanPinjaman', {
+    user_id:    CU.id,
+    jumlah:     Number(jumlah),
+    tenor:      Number(tenor),
+    keterangan: ket
+  });
+
+  if (r.success) {
+    toast('Pengajuan berhasil dikirim!', 'success');
+    closeModal();
+
+    // ===== KIRIM WA KE DEPT MANAGER =====
+    if (confirm('Kirim notifikasi WhatsApp ke Manager Departemen?')) {
+      CACHE = {};
+      const [allP, allU] = await Promise.all([
+        getData('pinjaman'),
+        getData('users')
+      ]);
+
+      const newP = allP.find(p => String(p.id) === String(r.id));
+
+      // Ambil data user terbaru (dengan no_hp_atasan)
+      const userData = allU.find(u => String(u.id) === String(CU.id)) || CU;
+
+      if (newP) {
+        // Ambil nomor HP atasan dari kolom no_hp_atasan
+        let phoneAtasan = userData?.no_hp_atasan || null;
+
+        if (!phoneAtasan) {
+          // Fallback: cari user yang jabatannya manager di dept yang sama
+          const deptMgr = allU.find(u =>
+            u.departemen === userData.departemen &&
+            (
+              u.role === 'dept_manager' ||
+              u.jabatan?.toLowerCase().includes('manager')
+            )
+          );
+          phoneAtasan = deptMgr?.no_hp || null;
+        }
+
+        if (!phoneAtasan) {
+          // Fallback terakhir: minta input manual
+          phoneAtasan = prompt(
+            'Nomor HP Dept Manager tidak ditemukan.\nMasukkan nomor HP (format: 628xxx):',
+            '62'
+          );
+        }
+
+        if (phoneAtasan) {
+          sendWA('dept_manager', newP, userData, phoneAtasan);
+        }
+      }
+    }
+
+    renderPage(PAGE);
+  }
+}
+// =====================================================
+// ADMIN ACTION HANDLERS
+// =====================================================
+async function doApproveStage(pid) {
+  if (!confirm('Approve pengajuan ini?')) return;
+
+  const r = await apiPOST('approvePinjamanStage', {
+    pinjaman_id:  pid,
+    approver_id:  CU.id,
+    approver_role: ROLE
+  });
+
+  if (r.success) {
+    toast(r.message || 'Approved!', 'success');
+
+    if (r.next_stage) {
+      const [allP, allU] = await Promise.all([
+        getData('pinjaman'),
+        getData('users')
+      ]);
+
+      const pm  = allP.find(x => String(x.id) === String(pid));
+      const usr = allU.find(u => u.id == pm?.user_id);
+
+      if (pm && usr) {
+        const nRole =
+          r.next_stage === 'HC Manager' ? 'hc_manager' :
+          r.next_stage === 'Finance'    ? 'finance'    : null;
+
+        if (nRole && confirm(`Kirim WA ke ${r.next_stage}?`)) {
+
+          let phoneNext = null;
+
+          if (nRole === 'dept_manager') {
+            // Ambil dari no_hp_atasan user
+            phoneNext = usr?.no_hp_atasan || null;
+          } else {
+            // HC Manager & Finance dari settings S.wa
+            phoneNext = S.wa[nRole] || null;
+          }
+
+          // Kalau tidak ada, minta input manual
+          if (!phoneNext) {
+            phoneNext = prompt(
+              `Masukkan nomor HP ${r.next_stage} (format: 628xxx):`,
+              '62'
+            );
+          }
+
+          if (phoneNext) sendWA(nRole, pm, usr, phoneNext);
+        }
+      }
+    }
+
+    renderPage(PAGE);
+  }
+}
+
+async function doReject(pid) {
+  if (!confirm('Yakin menolak pengajuan ini?')) return;
+  const r = await apiPOST('rejectPinjaman',{ pinjaman_id:pid, approver_id:CU.id });
+  if (r.success) { toast('Pengajuan ditolak','warning'); renderPage(PAGE); }
+}
+
+async function doCairkan(pid) {
+  if (!confirm('Cairkan pinjaman ini?')) return;
+  const r = await apiPOST('cairkanPinjaman',{ pinjaman_id:pid });
+  if (r.success) { toast(r.message||'Dicairkan!','success'); renderPage(PAGE); }
+}
+
+async function doSingleCicilan(pid, jumlah) {
+  if (!confirm(`Proses cicilan ${fRp(jumlah)}?`)) return;
+  const r = await apiPOST('bayarCicilan',{ pinjaman_id:pid, jumlah:Number(jumlah) });
+  if (r.success) { toast(r.message||'Cicilan berhasil!','success'); renderPage(PAGE); }
+}
+
+async function doBatchCicilan() {
+  if (!confirm('Proses cicilan untuk SEMUA pinjaman aktif bulan ini?')) return;
+  const r = await apiPOST('prosesBatchCicilan',{});
+  if (r.success) { toast(r.message||'Batch selesai!','success'); renderPage(PAGE); }
+}
+
+async function doSendWA(pid) {
+  const [pjm, users] = await Promise.all([getData('pinjaman'), getData('users')]);
+  const p = pjm.find(x => String(x.id) === String(pid));
+  if (!p) return toast('Pinjaman tidak ditemukan', 'error');
+
+  const u = users.find(x => x.id == p.user_id);
+
+  let nRole = null;
+  if (p.status === 'PENDING')              nRole = 'dept_manager';
+  else if (p.status === 'PENDING_HC')      nRole = 'hc_manager';
+  else if (p.status === 'PENDING_FINANCE') nRole = 'finance';
+
+  if (!nRole) return toast('Tidak ada approver berikutnya', 'info');
+
+  // Cari nomor HP berdasarkan role
+  let phone = null;
+
+  if (nRole === 'dept_manager') {
+    // Ambil dari data user pengaju (no_hp_atasan)
+    phone = u?.no_hp_atasan || null;
+
+    if (!phone) {
+      // Fallback: cari user yang dept sama dengan role dept_manager
+      const deptMgr = users.find(x =>
+        x.departemen === u?.departemen &&
+        (x.role === 'dept_manager' || x.jabatan?.toLowerCase().includes('manager'))
+      );
+      phone = deptMgr?.no_hp || null;
+    }
+  } else {
+    phone = S.wa[nRole] || null;
+  }
+
+  if (!phone) {
+    // Minta input manual jika tidak ada
+    const inputPhone = prompt(
+      `Nomor WA ${nRole} tidak ditemukan.\nMasukkan nomor HP (format: 628xxx):`,
+      '62'
+    );
+    if (!inputPhone) return;
+    phone = inputPhone;
+  }
+
+  sendWA(nRole, p, u, phone);
+}
+
+async function showDetailPinjaman(pid) {
+  const [users,trx,pjm] = await Promise.all([getData('users'),getData('transaksi'),getData('pinjaman')]);
+  const p   = pjm.find(x=>String(x.id)===String(pid));
+  if (!p) return toast('Tidak ditemukan','error');
+  const u   = users.find(x=>x.id==p.user_id);
+  const sisa= calcSisa(pid, trx);
+  const bay = (['CAIR','AKTIF','LUNAS'].includes(p.status))?(Number(p.jumlah)-sisa):0;
+  const st  = PS[p.status]||{};
+  const cics= trx.filter(t=>t.jenis==='cicilan'&&String(t.ref_id)===String(pid));
+
+  showModal(`<i class="fas fa-file-alt"></i> Detail ${p.jenis} #${pid}`, `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div><div style="font-size:22px;font-weight:700">${fRp(p.jumlah)}</div><div style="color:var(--text-muted);font-size:13px">${u?.nama||'-'} | ${u?.departemen||'-'}</div></div>
+      <span class="badge ${st.badge}">${st.label}</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px;margin-bottom:14px">
+      <div><span style="color:var(--text-muted)">Jenis:</span> <strong>${p.jenis}</strong></div>
+      <div><span style="color:var(--text-muted)">Tenor:</span> <strong>${p.tenor} bulan</strong></div>
+      <div><span style="color:var(--text-muted)">Admin Fee:</span> <strong>${fRp(p.admin_fee)}</strong></div>
+      <div><span style="color:var(--text-muted)">Diterima:</span> <strong>${fRp(p.net_amount)}</strong></div>
+      <div><span style="color:var(--text-muted)">Cicilan:</span> <strong>${fRp(p.cicilan_per_bulan)}/bln</strong></div>
+      <div><span style="color:var(--text-muted)">Sisa:</span> <strong class="aout">${fRp(sisa>0?sisa:0)}</strong></div>
+    </div>
+    <div style="margin-bottom:12px;font-size:13px"><strong>Keperluan:</strong> ${p.keterangan||'-'}</div>
+    <div style="margin-bottom:12px"><strong style="font-size:13px">Status Approval:</strong>${renderApvTimeline(p)}</div>
+    ${cics.length>0?`
+      <div><strong style="font-size:13px">Riwayat Cicilan (${cics.length}x):</strong>
+        <div style="margin-top:8px">
+          ${cics.map((c,i)=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed var(--border);font-size:13px"><span>Cicilan ke-${i+1} (${fDate(c.tanggal)})</span><strong>${fRp(c.jumlah)}</strong></div>`).join('')}
+        </div>
+      </div>
+    `:''}
+  `, null, true);
+}
+
+// =====================================================
+// EVENT LISTENERS
+// =====================================================
+document.getElementById('menuToggle').addEventListener('click', ()=>{
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('show');
+});
+document.getElementById('sidebarOverlay').addEventListener('click', ()=>{
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('show');
+});
+document.getElementById('modal').addEventListener('click', e=>{ if(e.target.id==='modal') closeModal(); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+
+// =====================================================
+// INIT
+// =====================================================
+checkSession();
+</script>
+</body>
+</html>
